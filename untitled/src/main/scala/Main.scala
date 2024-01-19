@@ -64,7 +64,6 @@ object Task3 extends App {
 	// Task 3 = 5
 }
 
-
 object Task4 extends App {
 	def solution(nums: Array[Int], target: Int): Int = {
 		// Your code
@@ -96,7 +95,6 @@ object Task4 extends App {
 			}
 		}
 
-		// индекс, после которого идет вторая отсортированная часть
 		search(nums, 0, nums.length - 1)
 	}
 
@@ -110,23 +108,10 @@ object Task4 extends App {
 	// Task 4 = -1
 }
 
-
 object Task5 extends App {
-	import Util.rotations
-
-	def genSubsets[A](items: List[A]): List[List[A]] = items match {
-		case Nil => Nil
-		case (x :: y :: Nil) => List(List(x, y))
-		case _ => {
-			val rotsTails = rotations(items).map(_.tail).toList
-			rotsTails
-			//items :: rotsTails.flatMap { genSubsets(_) }
-		}
-	}
-
 	def solution(nums: Array[Int]): List[List[Int]] = {
-		val numsL = nums.toList
-		List.empty :: genSubsets(numsL) ++ numsL.map(List(_))
+		val N = nums.length
+		List.range(0, N + 1).flatMap(nums.combinations(_).map(_.toList))
 	}
 
 	println(s"Task 5 = ${solution(Array(1, 2, 3, 4))}")
@@ -143,9 +128,6 @@ object Task5 extends App {
 }
 
 object Task6 extends App {
-	// Даны два не пустых связных списка, представляющих два неотрицательных целых числа.
-	// Цифры хранятся в обратном порядке, и каждый из их узлов содержит одну цифру.
-	// Суммируйте два числа и верните их в виде связанного списка.
 	case class ListNode(x: Int = 0, next: Option[ListNode] = None)
 
 	def merge(l1: ListNode, l2: ListNode, carry: Int): ListNode = (l1, l2) match {
@@ -348,16 +330,7 @@ object Task10 extends App {
 }
 
 object Task11 extends App {
-
-	def solution(nums: Array[Int]): List[List[Int]] = {
-		if (nums.length == 1) {
-			List(nums.toList)
-		} else {
-			Util.rotations(nums.toList).flatMap(r => {
-				solution(r.tail.toArray).map { r.head :: _ }
-			}).toList
-		}
-	}
+	def solution(nums: Array[Int]): List[List[Int]] = nums.toList.permutations.toList
 
 	println(s"Task 11 = ${solution(Array(1, 2, 3))}")
 	// Task 11 = List(
@@ -407,41 +380,34 @@ object Task12 extends App {
 
 object Task13 extends App {
 	import scala.util.Try
+	def inUnsignedByteRange(v: Int) = v >= 0 && v <= 255
 
-	def validateByte(s: String): Try[Boolean] = {
+	def isValidByteStr(str: String) = {
 		val reg = "0|([1-9]{1,1}\\d{0,2})".r
-		if (reg.matches(s)) {
-			for (num <- Try(s.toInt))
-				yield num <= 255
+		if (reg.matches(str)) {
+			str.toIntOption.map(inUnsignedByteRange(_)).getOrElse(false)
 		} else {
-			Success(false)
+			false
 		}
 	}
 
-	def helper(s: String, parts: List[String]): List[List[String]] = {
-		if (s.isEmpty) {
-			List(parts)
-		} else {
-			if (parts.length > 4) {
-				Nil
-			} else {
-				(1 to 3).flatMap(i => {
-					val (head, tail) = s.splitAt(i)
-					helper(tail, parts :+ head)
-				}).toList
-			}
+	def combineIpsFromString(s: String, parts: List[String]): List[List[String]] = (s, parts.length) match {
+		case (_, ln) if (ln > 4) => Nil
+		case ("", 4) => List(parts)
+		case _ => {
+			(1 to 3).flatMap(i => {
+				val (head, tail) = s.splitAt(i)
+				if (isValidByteStr(head)) {
+					combineIpsFromString(tail, parts :+ head)
+				} else {
+					Nil
+				}
+			}).toList
 		}
 	}
 
  	def solution(s: String): List[String] = {
-		val ips = helper(s, List.empty).filter(split => {
-			split.length == 4 && split.forall(part => validateByte(part) match {
-				case Success(v) => v
-				case Failure(_) => false
-			})
-		}).map(_.mkString("."))
-
-		Set.from(ips).toList
+		combineIpsFromString(s, List.empty).map(_.mkString(".")).toSet.toList
 	}
 
 	println(s"Task 13 = ${solution("25525511135")}")
@@ -467,11 +433,10 @@ object Task14 extends App {
 	def solution(s: String, wordDict: List[String]): List[String] = {
 
 		def combine(str: String, buf: List[String]): List[String] = {
-			if (str.isEmpty) {
+			if (str.isEmpty)
 				List(buf.mkString(" "))
-			} else {
+			else
 				wordDict.flatMap(w => if (str.startsWith(w)) combine(str.drop(w.length), buf :+ w) else Nil)
-			}
 		}
 
 		combine(s, List.empty)
