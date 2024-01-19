@@ -5,7 +5,6 @@ object Util {
 	def rotations[A](l: List[A]) = Range(0, l.length).map(rotateRight(l, _))
 }
 
-
 object Task1 extends App {
 	def solution(nums: Array[Int], target: Int): Array[Int] = {
 		// Your code
@@ -115,43 +114,22 @@ object Task4 extends App {
 object Task5 extends App {
 	import Util.rotations
 
-	// Дано подмножество различных целых чисел. Верните все возможные подмножества (мощность множества).
-	@annotation.tailrec
-	def getNthSubset(nums: Array[Int], idx: Int, depth: Int, subset: List[Int]): List[Int] = {
-		if (idx == 0) {
-			subset
-		} else {
-			val nextSubset = if (idx % 2 == 1) {
-				subset :+ nums(depth)
-			} else {
-				subset
-			}
-
-			getNthSubset(nums, idx / 2, depth + 1, nextSubset)
+	def genSubsets[A](items: List[A]): List[List[A]] = items match {
+		case Nil => Nil
+		case (x :: y :: Nil) => List(List(x, y))
+		case _ => {
+			val rotsTails = rotations(items).map(_.tail).toList
+			rotsTails
+			//items :: rotsTails.flatMap { genSubsets(_) }
 		}
 	}
 
-	def genSubsets[A](items: List[A], acc: List[List[A]]): List[List[A]] = items match {
-		case Nil => acc
-		case (x :: xs) => {
-			// "хвосты" всевозможных поворотов
-			// (1 2 3) -> ( 2 3 / 1 2 / 3 1 )
-			val rotsTails = rotations(items).map(_.tail)
-
-			// точно добавляю сам items
-			// потом беру все его rotations
-			// обрезаю первый элемент и добавляю все genSubset(rot, acc)
-			genSubsets(xs, items :: acc)
-		}
+	def solution(nums: Array[Int]): List[List[Int]] = {
+		val numsL = nums.toList
+		List.empty :: genSubsets(numsL) ++ numsL.map(List(_))
 	}
 
-	def combinations[A](items: Array[A], n: Int): List[List[A]] = {
-		Nil
-	}
-
-	def solution(nums: Array[Int]): List[List[Int]] = Nil
-
-	println(s"Task 5 = ${solution(Array(1, 2, 3))}")
+	println(s"Task 5 = ${solution(Array(1, 2, 3, 4))}")
 	// Task 5 = List(
 	//   List(3),
 	//   List(1),
@@ -456,7 +434,6 @@ object Task13 extends App {
 	}
 
  	def solution(s: String): List[String] = {
-		println(s)
 		val ips = helper(s, List.empty).filter(split => {
 			split.length == 4 && split.forall(part => validateByte(part) match {
 				case Success(v) => v
@@ -487,24 +464,18 @@ object Task13 extends App {
 }
 
 object Task14 extends App {
-	def combine(str: String, wordDict: List[String], buf: List[String]): List[String] = {
-		if (str.isEmpty) {
-			List(buf.mkString(" "))
-		} else {
-			val prefixes = for {
-				w <- wordDict
-				if (str.startsWith(w))
-			} yield (w)
+	def solution(s: String, wordDict: List[String]): List[String] = {
 
-			if (prefixes.isEmpty) {
-				Nil
+		def combine(str: String, buf: List[String]): List[String] = {
+			if (str.isEmpty) {
+				List(buf.mkString(" "))
 			} else {
-				prefixes.flatMap(p => combine(str.drop(p.length), wordDict, buf :+ p))
+				wordDict.flatMap(w => if (str.startsWith(w)) combine(str.drop(w.length), buf :+ w) else Nil)
 			}
 		}
-	}
 
-	def solution(s: String, wordDict: List[String]): List[String] = combine(s, wordDict, List.empty)
+		combine(s, List.empty)
+	}
 
 	println(s"Task 14 = ${solution("catsanddog", List("cat", "cats", "and", "sand", "dog"))}")
 	// Task 14 = List(
