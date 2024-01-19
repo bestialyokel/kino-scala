@@ -1,20 +1,28 @@
 import scala.util.{Failure, Success}
 
+object Util {
+	def rotateRight[A](l: List[A], n: Int) = l.takeRight(n) ++ l.dropRight(n)
+	def rotations[A](l: List[A]) = Range(0, l.length).map(rotateRight(l, _))
+}
+
+
 object Task1 extends App {
-	// Дан массив чисел и целевое значение.
-	// Напишите программу, которая будет возвращать индексы 2 чисел, сумма которых равна целевому значению.
 	def solution(nums: Array[Int], target: Int): Array[Int] = {
 		// Your code
 		@annotation.tailrec
-		def helper(nums: List[Int], target: Int, map: Map[Int, Int], currentIdx: Int): List[Int] = nums match {
-			case Nil => Nil
-			case (x :: xs) => map.get(target - x) match {
-				case Some(idx) => List(idx, currentIdx)
-				case None => helper(xs, target, map + (x -> currentIdx), currentIdx + 1)
+		def findIndexesMatchingTarget(idx: Int, valueToIndex: Map[Int, Int]): Array[Int] = {
+			if (idx >= nums.length) {
+				Array.empty
+			} else {
+				val value = nums(idx)
+				valueToIndex.get(target - value) match {
+					case Some(matchIdx) => Array(matchIdx, idx)
+					case None => findIndexesMatchingTarget(idx + 1, valueToIndex + (value -> idx))
+				}
 			}
 		}
 
-		helper(nums.toList, target, Map[Int,Int](), 0).toArray
+		findIndexesMatchingTarget(0, Map.empty)
 	}
 
 	println(s"Task 1 = ${solution(Array(2, 7, 11, 15), 9).toList}")
@@ -29,20 +37,9 @@ object Task1 extends App {
 
 object Task2 extends App {
 	@annotation.tailrec
-	def reverse(lft: Int, rgt: Int): Int = (lft, rgt) match {
-		case (0, _) => rgt
-		case _ => reverse(lft / 10, rgt * 10 + lft % 10)
-	}
+	def reverse(lft: Int, rgt: Int): Int = if (lft == 0) rgt else reverse(lft / 10, rgt * 10 + lft % 10)
 
-	// Определите, является ли целое число палиндромом.
-	def solution(x: Int): Boolean = {
-		// Your code
-		if (x < 0) {
-			false
-		} else {
-			x == reverse(x, 0)
-		}
-	}
+	def solution(x: Int): Boolean = if (x < 0) false else x == reverse(x, 0)
 
 	println(s"Task 2 = ${solution(121)}")
 	// Task 2 = true
@@ -59,16 +56,9 @@ object Task2 extends App {
 
 object Task3 extends App {
 	// Your code
-	def solution(s: String): Int = {
-		val (result, _) = s.toList.foldLeft((0, 0))((pair, char) => {
-			val (max, current) = pair
-			char match {
-				case ' ' => (Math.max(current, max), 0)
-				case _ => (max, current + 1)
-			}
-		})
-
-		result
+	def solution(s: String): Int = s.split(' ').lastOption match {
+		case Some(word) => word.length
+		case _ => 0
 	}
 
 	println(s"Task 3 = ${solution("Hello World")}")
@@ -80,46 +70,35 @@ object Task4 extends App {
 	def solution(nums: Array[Int], target: Int): Int = {
 		// Your code
 		@annotation.tailrec
-		def findInversionIdx(nums: Array[Int], leftIdx: Int, rightIdx: Int): Int = {
-			if (rightIdx - leftIdx <= 1) {
-				return leftIdx
-			}
-
-			val pivotIdx = (rightIdx + leftIdx) / 2
-			val pivot = nums(pivotIdx)
-			val right = nums(rightIdx)
-
-			if (pivot > right) {
-				findInversionIdx(nums, pivotIdx, rightIdx)
-			} else {
-				findInversionIdx(nums, leftIdx, pivotIdx)
-			}
-		}
-
-		@annotation.tailrec
-		def binSearch(nums: Array[Int], target: Int, leftIdx: Int, rightIdx: Int): Int = {
-			val pivotIdx = (rightIdx + leftIdx) / 2
-			val pivot = nums(pivotIdx)
-
-			if (leftIdx > rightIdx) {
+		def search(nums: Array[Int], lftIdx: Int, rgtIdx: Int): Int = {
+			if (lftIdx > rgtIdx) {
 				-1
 			} else {
-				pivot.compareTo(target) match {
-					case x if (x < 0) => binSearch(nums, target, pivotIdx + 1, rightIdx)
-					case x if (x > 0) => binSearch(nums, target, leftIdx, pivotIdx - 1)
-					case x if (x == 0) => pivotIdx
+				val pivotIdx = (lftIdx + rgtIdx) / 2
+				val pivot = nums(pivotIdx)
+
+				if (target > pivot) {
+					val right = nums(rgtIdx)
+					if (right < target) {
+						search(nums, lftIdx, pivotIdx - 1)
+					} else {
+						search(nums, pivotIdx + 1, rgtIdx)
+					}
+				} else if (target < pivot) {
+					val lft = nums(lftIdx)
+					if (lft > target) {
+						search(nums, pivotIdx + 1, rgtIdx)
+					} else {
+						search(nums, lft, pivotIdx - 1)
+					}
+				} else {
+					pivotIdx
 				}
 			}
-
 		}
+
 		// индекс, после которого идет вторая отсортированная часть
-		val inversionIdx = findInversionIdx(nums, 0, nums.length - 1)
-
-		if (target < nums(0)) {
-			binSearch(nums, target, inversionIdx + 1, nums.length - 1)
-		} else {
-			binSearch(nums, target, 0, inversionIdx)
-		}
+		search(nums, 0, nums.length - 1)
 	}
 
 	println(s"Task 4 = ${solution(Array(4, 5, 6, 7, 0, 1, 2), 0)}")
@@ -134,6 +113,8 @@ object Task4 extends App {
 
 
 object Task5 extends App {
+	import Util.rotations
+
 	// Дано подмножество различных целых чисел. Верните все возможные подмножества (мощность множества).
 	@annotation.tailrec
 	def getNthSubset(nums: Array[Int], idx: Int, depth: Int, subset: List[Int]): List[Int] = {
@@ -150,13 +131,25 @@ object Task5 extends App {
 		}
 	}
 
-	def solution(nums: Array[Int]): List[List[Int]] = {
-		// Your code
-		val seq = for (i <- Range(0, 1 << nums.length))
-			yield getNthSubset(nums, i, 0, List())
+	def genSubsets[A](items: List[A], acc: List[List[A]]): List[List[A]] = items match {
+		case Nil => acc
+		case (x :: xs) => {
+			// "хвосты" всевозможных поворотов
+			// (1 2 3) -> ( 2 3 / 1 2 / 3 1 )
+			val rotsTails = rotations(items).map(_.tail)
 
-		seq.toList
+			// точно добавляю сам items
+			// потом беру все его rotations
+			// обрезаю первый элемент и добавляю все genSubset(rot, acc)
+			genSubsets(xs, items :: acc)
+		}
 	}
+
+	def combinations[A](items: Array[A], n: Int): List[List[A]] = {
+		Nil
+	}
+
+	def solution(nums: Array[Int]): List[List[Int]] = Nil
 
 	println(s"Task 5 = ${solution(Array(1, 2, 3))}")
 	// Task 5 = List(
@@ -227,25 +220,17 @@ object Task6 extends App {
 // Task 6 = ListNode(8, Some(ListNode(9, Some(ListNode(9, Some(ListNode(9, Some(ListNode(0, Some(ListNode(0, Some(ListNode(0, Some(ListNode(1, None)))))))))))))))
 
 object Task7 extends App {
-	// Дан массив неотрицательных целых чисел, где вы изначально располагаетесь на начальном индексе массива.
-	// Каждый элемент массива представляет вашу максимальную длину прыжка в этой позиции.
-	// Определите, сможете ли вы достичь последнего индекса.
-	def dfs(nums: Array[Int], currentIdx: Int): Boolean = {
-		if (currentIdx >= nums.length) {
-			false
-		} else {
-			if (currentIdx == nums.length - 1) {
-				true
+	def solution(nums: Array[Int]): Boolean = {
+		val lastJump = nums.dropRight(1).foldLeft(1)((prevMaxJump, maxJump) => {
+			if (prevMaxJump == 0) {
+				0
 			} else {
-				val maxJump = nums(currentIdx)
-				Range(0, maxJump)
-				  .map(currentIdx + _ + 1)
-				  .exists(idx => dfs(nums, idx))
+				Math.max(prevMaxJump - 1, maxJump)
 			}
-		}
-	}
+		})
 
-	def solution(nums: Array[Int]): Boolean = dfs(nums, 0)
+		lastJump > 0
+	}
 
 	println(s"Task 7 = ${solution(Array(2, 3, 1, 1, 4))}")
 	// Task 7 = true
@@ -258,22 +243,19 @@ object Task7 extends App {
 }
 
 object Task8 extends App {
-	// По заданной строке найдите длину самой длинной подстроки без повторяющихся символов.
 
-	def maxUniqueCharsChainLength(list: List[Char], currentLength: Int, maxLength: Int, metChars: Set[Char]): Int = list match {
-		case Nil => maxLength
-		case (x :: xs) => {
-			val (current, max, chars) = if (metChars.contains(x)) {
-				(1, Math.max(maxLength, currentLength), Set(x))
+	def solution(s: String): Int = {
+		val (_, maxLength) = s.foldLeft(Set.empty[Char], 0)((state, c) => {
+			val (metChars, maxLength) = state
+			if (metChars.contains(c)) {
+				(Set(c), Math.max(maxLength, 1))
 			} else {
-				(currentLength + 1, Math.max(maxLength, currentLength + 1), metChars + x)
+				(metChars + c, Math.max(maxLength, metChars.size + 1))
 			}
+		})
 
-			maxUniqueCharsChainLength(xs, current, max, chars)
-		}
+		maxLength
 	}
-
-	def solution(s: String): Int = maxUniqueCharsChainLength(s.toList, 0, 0, Set())
 
 	println(s"Task 8 = ${solution("abcabcbb")}")
 	// Task 8 = 3
@@ -293,23 +275,20 @@ object Task9 extends App {
 	@annotation.tailrec
 	def checkStr(str: List[Char], template: List[Char]): Boolean = {
 		(str, template) match {
-			case (Nil, Nil) => true
-
-			case (x :: xs, y :: '*' :: ys) => {
+			case (x :: xs, y :: '*' :: ys) =>
 				if (x == y || y == '.') {
 					checkStr(xs, template)
 				} else {
 					checkStr(x :: xs, ys)
 				}
-			}
 
-			case (x :: xs, y :: ys) => {
+			case (x :: xs, y :: ys) =>
 				if (x == y || y == '.') {
 					checkStr(xs, ys)
 				} else {
 					false
 				}
-			}
+
 
 			case (Nil, Nil) => true
 			case (Nil, _ :: '*' :: Nil) => true
@@ -336,53 +315,28 @@ object Task9 extends App {
 }
 
 object Task10 extends App {
-	def rotateOnce(matrix: Array[Array[Int]], dim: Int, offset: Int): Unit = {
-		val minIdx = offset
-		val maxIdx = offset + dim - 1
-
-		val lastTop = matrix(minIdx)(maxIdx)
-		val lastRight = matrix(maxIdx)(maxIdx)
-		val lastBottom = matrix(maxIdx)(minIdx)
-
-		// rotate top
-		for (i <- Range(0, dim - 1)) {
-			matrix(minIdx)(maxIdx - i) = matrix(minIdx)(maxIdx - i - 1)
-		}
-
-		// rotate right
-		for (i <- Range(0, dim - 1)) {
-			matrix(maxIdx - i)(maxIdx) = matrix(maxIdx - i - 1)(maxIdx)
-		}
-
-		// rotate bottom
-		for (i <- Range(0, dim - 1)) {
-			matrix(maxIdx)(minIdx + i) = matrix(maxIdx)(minIdx + i + 1)
-		}
-
-		// rotate left
-		for (i <- minIdx to maxIdx - 1) {
-			matrix(minIdx + i)(minIdx) = matrix(minIdx + i + 1)(minIdx)
-		}
-
-		matrix(minIdx + 1)(maxIdx) = lastTop
-		matrix(maxIdx)(maxIdx - 1) = lastRight
-		matrix(maxIdx - 1)(minIdx) = lastBottom
-	}
-
-	def rotate(matrix: Array[Array[Int]], dim: Int, offset: Int): Unit = {
-		if (dim <= 1) {
-
-		} else {
-			for (_ <- 0 to dim - 2) {
-				rotateOnce(matrix, dim, offset)
-			}
-			rotate(matrix, dim - 2, offset + 1)
-		}
-	}
-
 
 	def solution(matrix: Array[Array[Int]]): Array[Array[Int]] = {
-		rotate(matrix, matrix.length, 0)
+		val N = matrix.length
+
+		for (
+			i <- 0 until N;
+			j <- 0 until i
+		) {
+			val t = matrix(i)(j)
+			matrix(i)(j) = matrix(j)(i)
+			matrix(j)(i) = t
+		}
+
+		for (
+			i <- 0 until N;
+			j <- 0 until N / 2
+		) {
+			val t = matrix(i)(j)
+			matrix(i)(j) = matrix(i)(N - j - 1)
+			matrix(i)(N - j - 1) = t
+		}
+
 		matrix
 	}
 
@@ -417,30 +371,14 @@ object Task10 extends App {
 
 object Task11 extends App {
 
-	def genPerm(nums: List[Int], state: List[Int]): List[List[Int]] = nums match {
-		case Nil => List(state)
-		case nums => {
-			rotations(nums).flatMap(r => {
-				val (x :: xs) = r
-				genPerm(xs, state :+ x)
-			})
-		}
-	}
-
-	def rotations(nums: List[Int]): List[List[Int]] = {
-		val rot = for (i <- 0 to nums.length - 1)
-			yield (rotateRight(nums, i))
-
-		rot.toList
-	}
-
-	def rotateRight(nums: List[Int], n: Int): List[Int] = {
-		nums.takeRight(n) ++ nums.dropRight(n)
-	}
-
 	def solution(nums: Array[Int]): List[List[Int]] = {
-		val list = nums.toList
-		genPerm(list, List())
+		if (nums.length == 1) {
+			List(nums.toList)
+		} else {
+			Util.rotations(nums.toList).flatMap(r => {
+				solution(r.tail.toArray).map { r.head :: _ }
+			}).toList
+		}
 	}
 
 	println(s"Task 11 = ${solution(Array(1, 2, 3))}")
@@ -519,7 +457,7 @@ object Task13 extends App {
 
  	def solution(s: String): List[String] = {
 		println(s)
-		val ips = helper(s, List()).filter(split => {
+		val ips = helper(s, List.empty).filter(split => {
 			split.length == 4 && split.forall(part => validateByte(part) match {
 				case Success(v) => v
 				case Failure(_) => false
@@ -544,15 +482,14 @@ object Task13 extends App {
 	println(s"Task 13 = ${solution("101023")}")
 	// Task 13 = List("1.0.10.23", "1.0.102.3", "10.1.0.23", "10.10.2.3", "101.0.2.3")
 
-	//println(s"Task 13 = ${solution("2552551113500001111010010101023")}")
+	println(s"Task 13 = ${solution("2552551113500001111010010101023")}")
 	// Task 13 = List()
 }
 
 object Task14 extends App {
-
-	def helper(str: String, wordDict: List[String], buf: List[String], result: List[String]): List[String] = {
+	def combine(str: String, wordDict: List[String], buf: List[String]): List[String] = {
 		if (str.isEmpty) {
-			buf.mkString(" ") :: result
+			List(buf.mkString(" "))
 		} else {
 			val prefixes = for {
 				w <- wordDict
@@ -562,15 +499,12 @@ object Task14 extends App {
 			if (prefixes.isEmpty) {
 				Nil
 			} else {
-				prefixes.flatMap(p => helper(str.drop(p.length), wordDict, buf :+ p, result))
+				prefixes.flatMap(p => combine(str.drop(p.length), wordDict, buf :+ p))
 			}
 		}
-
 	}
 
-	def solution(s: String, wordDict: List[String]): List[String] = {
-		helper(s, wordDict, List(), List())
-	}
+	def solution(s: String, wordDict: List[String]): List[String] = combine(s, wordDict, List.empty)
 
 	println(s"Task 14 = ${solution("catsanddog", List("cat", "cats", "and", "sand", "dog"))}")
 	// Task 14 = List(
@@ -593,41 +527,33 @@ object Task14 extends App {
 }
 
 object Task15 extends App {
-	def landDfs(grid: Array[Array[Char]], pos: (Int, Int), visited: Set[(Int, Int)]): Set[(Int,Int)] =  {
-		val (x, y) = pos
-		val H = grid.length
-		val L = grid(0).length //?
-		if (
-		  x >= H
-		  || y >= L
-		  || visited.contains((x, y))
-		  || grid(x)(y) != '1') {
-			visited
-		} else {
-			landDfs(grid, (x + 1, y), visited + ((x, y))) ++ landDfs(grid, (x, y + 1), visited + ((x, y)))
-		}
-	}
+	val LAND = '1'
+	val MARK = '2'
 
 	def solution(grid: Array[Array[Char]]): Int = {
 		// Your code
-		landDfs(grid, (0, 0), Set())
-		val N = grid.length
+		val H = grid.length
+		val L = grid(0).length //?
 
-		val indicies = (0 to N).flatMap(i => (0 to N).map(j => (i, j)))
-
-		val (landsCnt, _) = indicies.foldLeft((0, Set[(Int, Int)]()))(
-			(state, pos) => {
-				val (cnt, visited) = state
-				val visitedFromPos = landDfs(grid, pos, visited)
-				if (visitedFromPos.size > visited.size) {
-					(cnt + 1, visited ++ visitedFromPos)
-				} else {
-					(cnt, visited)
-				}
+		def dfsMarker(pos: (Int, Int)): Unit = {
+			val (i, j) = pos
+			if (i < H && j < L && grid(i)(j) == LAND) {
+				dfsMarker((i + 1, j))
+				dfsMarker((i, j + 1))
+				grid(i)(j) = MARK
 			}
-		)
+		}
 
-		landsCnt
+		grid.indices.flatMap(i => {
+			grid(i).indices.map(j => {
+				if (grid(i)(j) == LAND) {
+					dfsMarker((i, j))
+					1
+				} else {
+					0
+				}
+			})
+		}).sum
 	}
 
 	val grid1 = Array(
