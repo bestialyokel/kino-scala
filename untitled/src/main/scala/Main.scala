@@ -354,7 +354,14 @@ object Task12 extends App {
 	p — порядок
 	 */
 	def solution(s: String): Boolean = {
-		val r = ".*".r
+		print(s + " ")
+		val r = ("\\s*\\-?" +
+		  "(" +
+		  	"((0|([1-9]{1,1}\\d*))(\\.\\d*)?)|" +
+		  	"((0|([1-9]{1,1}\\d*))?(\\.\\d*))" +
+		  ")" +
+		  "([eE]\\-?(0|[1-9]\\d*))?" +
+		  "\\s*").r
 		r.matches(s)
 	}
 
