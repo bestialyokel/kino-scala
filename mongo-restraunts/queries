@@ -2,7 +2,8 @@
 db.restaurants.find({}, {
 	"name": 1, 
 	"restaurant_id": 1, 
-	"cuisine": 1
+	"cuisine": 1,
+	"borough": 1
 })
 
 #2. Отобразите поля идентификатор ресторана, название, район и кухню, но исключите поле _id для всех документов
@@ -10,6 +11,7 @@ db.restaurants.find({}, {
 	"name": 1, 
 	"restaurant_id": 1,
 	"cuisine": 1, 
+	"borough": 1,
 	"_id": 0
 })
 
@@ -32,34 +34,16 @@ db.restaurants.find({
 
 #6. Найдите рестораны, которые набрали более 80, но менее 100 баллов
 db.restaurants.find({
-    "$and": [
-		{
-			"$expr": {
-				"$gt": [
-					{ "$min": "$grades.score" },
-					80
-				]
-			},
-		},
-		{
-			"$expr": {
-				"$lt": [
-					{ "$max": "$grades.score" },
-					100
-				]
-			}
+	"grades": {
+		"$elemMatch": {
+			"score": {"$gt": 80 , "$lt": 100}
 		}
-	]
+	}
 })
 
 #7. Найдите рестораны, которые находятся по широте менее -95.754168.
 db.restaurants.find({
-	"$expr": {
-		"$lt": [
-			{ "$first": "$address.coord" },
-			-95.754168
-		]
-	},
+	"address.coord.0": {"$lt": -95.754168}
 })
 
 #8. Найдите рестораны, которые не готовят американскую кухню, 
@@ -68,17 +52,12 @@ db.restaurants.find({
 	"$and": [
 		{
 			"cuisine": {
-				"$not": {
-					"$eq": "American "
-				}
+				"$ne": "American "
 			}
 		},
 		{
-			"$expr": {
-				"$lt": [
-					{ "$first": "$address.coord" },
-					-65.754168
-				]
+			"address.coord.0": {
+				"$lt": -65.754168
 			},
 		},
 		{
@@ -103,11 +82,8 @@ db.restaurants.find({
 			}
 		},
 		{
-			"$expr": {
-				"$lte": [
-					{ "$arrayElemAt": [ "$address.coord", 1 ] },
-					35.754168
-				]
+			"address.coord.1": {
+				"$lte": 35.754168
 			},
 		},
 		{
@@ -123,23 +99,13 @@ db.restaurants.find({
 # Документы должны отображаться в соответствии с кухней в порядке убывания.
 
 db.restaurants.find({
-	"$and": [
-		{
-			"cuisine": {
-				"$not": {
-					"$regex": "American "
-				}
-			}
-		},
-		{
-			"borough": {
-				"$ne": "Brooklyn"
-			}
-		},
-		{
-			"grades.grade": "A"
-		}
-	]
+	"cuisine": {
+		"$ne": "American "
+	},
+	"borough": {
+		"$ne": "Brooklyn"
+	},
+	"grades.grade": "A"
 }).sort({
 	"cuisine": -1
 })
@@ -148,9 +114,7 @@ db.restaurants.find({
 # которые в качестве первых трех букв в названии ресторана используют «Wil».
 
 db.restaurants.find({
-	"name": {
-		"$regex": "Wil.*"
-	}
+	"name": /^Wil/
 }, {
 	"restaurant_id": 1,
 	"name": 1,
@@ -172,7 +136,7 @@ db.restaurants.find({
 
 db.restaurants.find({
 	"borough": {
-		"$in": ["Bronx", "Staten Island", "Queens", "Bronx", "Brooklyn"]
+		"$in": ["Bronx", "Staten Island", "Queens", "Brooklyn"]
 	},
 }, {
 	"restaurant_id": 1,
@@ -187,9 +151,7 @@ db.restaurants.find({
 
 db.restaurants.find({
 	"borough": {
-		"$not": {
-			"$in": ["Bronx", "Staten Island", "Queens", "Bronx", "Brooklyn"]
-		}
+		"$nin": ["Bronx", "Staten Island", "Queens", "Brooklyn"]
 	},
 }, {
 	"restaurant_id": 1,
@@ -221,15 +183,11 @@ db.restaurants.find({
 	"$or": [
 		{
 			"cuisine": {
-				"$not": {
-					"$in": ["American ", "Chinese"]
-				}
+				"$nin": ["American ", "Chinese"]
 			}
 		},
 		{
-			"name": {
-				"$regex": "Wil.*"
-			}
+			"name": /^Wil/
 		}
 	]
 },
@@ -244,14 +202,13 @@ db.restaurants.find({
 # которые достигли оценки «А» и набрали 11 баллов по ISODate «2014-08-11T00:00:00Z».
 
 db.restaurants.find({
-	"grades.grade": "A",
-	"grades.score": {
-		"$gte": 11
-	},
-	"grades.date": {
-		"$lte": new ISODate("2014-08-11T00:00:00Z")
+	"grades": {
+		"$elemMatch": {
+			"score": {"$eq": 11},
+			"grade": {"$eq": "A"},
+			"date": {"$eq": new ISODate("2014-08-11T00:00:00Z")}
+		}
 	}
-
 }, {
 	"restaurant_id": 1,
 	"name": 1,
@@ -262,29 +219,15 @@ db.restaurants.find({
 # где 2-й элемент массива оценок содержит оценку «А» и набрал 9 баллов по ISODate «2014-08-11T00:00:00Z».
 
 db.restaurants.find({
-	"$expr": {
-		"$and": [
-			{
-				"$eq": [
-					{ "$arrayElemAt": [ "$grades.grade", 1 ] },
-					"A"
-				]
-			},
-			{
-				"$gte": [
-					{ "$arrayElemAt": [ "$grades.score", 1 ] },
-					9
-				]
-			},
-			{
-				"$lte": [
-					{ "$arrayElemAt": [ "$grades.date", 1 ] },
-					new ISODate("2014-08-11T00:00:00Z")
-				]
-			}
-		]
+	"grades.1.grade": {
+		"$eq": "A"
+	},
+	"grades.1.score": {
+		"$eq": 9
+	},
+	"grades.1.score": {
+		"$eq": new ISODate("2014-08-11T00:00:00Z")
 	}
-	
 }, {
 	"restaurant_id": 1,
 	"name": 1,
@@ -302,11 +245,11 @@ db.restaurants.find({}).sort({
 
 #20. Напишите запрос, чтобы узнать, есть ли рестораны у которых нету улицы. Нужно вывести число таких ресторанов.
 
-db.restaurants.find({
+db.restaurants.countDocuments({
 	"address.street": {
 		"$exists": false
 	}
-}).count()
+})
 
 #21. Найдите идентификатор ресторана, название и оценки для тех ресторанов,
 # которые возвращают 0 в качестве остатка после деления баллов на 7.
@@ -326,7 +269,8 @@ db.restaurants.find({
 
 db.restaurants.find({
 	"name": {
-		"$regex": ".*mon.*"
+		"$regex": ".*mon.*",
+		"$options": "i"
 	}
 }, {
 	"name": 1,
@@ -338,9 +282,7 @@ db.restaurants.find({
 # в которых первые три буквы названия - «Mad».
 
 db.restaurants.find({
-	"name": {
-		"$regex": "Mad.*"
-	}
+	"name": /^Mad/
 }, {
 	"name": 1,
 	"borough": 1,
