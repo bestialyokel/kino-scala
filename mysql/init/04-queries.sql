@@ -30,8 +30,7 @@ where user_id = 1 OR email = 'user2@mail.ru';
 
 update test.users set balance = balance + 1
 where 
-    created_at between extract(YEAR_MONTH FROM date_sub(now(), interval 1 month)) 
-    and extract(YEAR_MONTH FROM date_sub(now(), interval 1 month));
+    extract(YEAR_MONTH FROM created_at) = extract(YEAR_MONTH FROM date_sub(now(), interval 1 month));
 
 
 /*
