@@ -69,6 +69,6 @@ alter table test.users add
 sex enum('unknown', 'M', 'F') default 'unknown'
 after pass_md5;
 
-alter table test.users modify column money double;
+alter table test.users modify column balance double;
 
 alter table test.users rename column balance to money;
