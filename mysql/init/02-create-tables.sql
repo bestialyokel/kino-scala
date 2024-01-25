@@ -9,7 +9,8 @@ created: дата время создания пользователя, став
 */
 
 create table test.users (
-    user_id int primary key auto_increment,
+   -- user_id int primary key auto_increment,
+    id int primary key auto_increment,
     email varchar(256),
     pass_md5 char(32),
     balance int,

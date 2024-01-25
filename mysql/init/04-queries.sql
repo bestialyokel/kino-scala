@@ -26,7 +26,8 @@ select sum(balance) FROM test.users;
 */
 
 update test.users set balance = balance + 1
-where user_id = 1 OR email = 'user2@mail.ru';
+where id = 1 OR email = 'user2@mail.ru';
+-- user_id = 1
 
 update test.users set balance = balance + 1
 where 
@@ -67,5 +68,7 @@ show create table test.users;
 alter table test.users add 
 sex enum('unknown', 'M', 'F') default 'unknown'
 after pass_md5;
+
+alter table test.users modify column money double;
 
 alter table test.users rename column balance to money;
