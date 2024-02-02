@@ -3,4 +3,11 @@
 # https://www.playframework.com/documentation/latest/ScalaRouting
 # ~~~~
 
-->      /v1/todo_list/tasks                         util.TodoListRouter
+GET       /api/v1/tasks                                 controllers.TaskController.getAll()
+POST      /api/v1/tasks                                 controllers.TaskController.create()
+DELETE    /api/v1/tasks/delete-completed                controllers.TaskController.deleteCompleted()
+PATCH     /api/v1/tasks/:id                             controllers.TaskController.update(id: Int)
+DELETE    /api/v1/tasks/:id                             controllers.TaskController.delete(id: Int)
+
+# TODO: Как тут импортировать TaskStatus
+PATCH     /api/v1/tasks/set-status/:status               controllers.TaskController.setStatusForAll(status: String)

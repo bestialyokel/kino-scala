@@ -1,11 +1,12 @@
 package dtos
 
-import play.api.libs.json.{Json, Writes, Reads}
+import models.TaskStatus
+import play.api.libs.json.{Json, Reads, Writes}
 
 case class PatchTaskDTO(
-                         name: Option[String] = None,
-                         completed: Option[Boolean] = None,
-                         deleted: Option[Boolean] = None
+                         nameO: Option[String] = None,
+                         completedO: Option[TaskStatus] = None,
+                         deletedO: Option[Boolean] = None
                        )
 
 trait PatchTaskDTOJson {

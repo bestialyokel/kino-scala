@@ -8,7 +8,7 @@ import play.api.Configuration
 import services.{TaskService, TaskServiceImpl}
 
 class ProductionModule extends AbstractModule {
-
+  slick.jdbc.PostgresProfile
 	override def configure() = {
 		bind(classOf[TaskDAO])
 		 .to(classOf[TaskDAODatabaseImpl])

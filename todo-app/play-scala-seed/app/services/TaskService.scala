@@ -2,33 +2,33 @@ package services
 
 import daos.{TaskDAO, TaskDAODatabaseImpl}
 import dtos.{CreateTaskDTO, PatchTaskDTO}
-import models.Task
+import models.{Task, TaskStatus}
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.Future
 
 trait TaskService {
-	def getAllTasks(): Future[Seq[Task]]
-	def createTask(dto: CreateTaskDTO): Future[Option[Task]]
-	def deleteTask(id: Int): Future[Option[Task]]
-	def updateTask(id: Int, dto: PatchTaskDTO): Future[Option[Task]]
-	def deleteCompleted(): Future[Seq[Task]]
-	def toggleCompleted(completed: Boolean): Future[Boolean]
+	def getAll(): Future[Seq[Task]]
+	def create(dto: CreateTaskDTO): Future[Option[Task]]
+	def delete(id: Int): Future[Option[Task]]
+	def update(id: Int, dto: PatchTaskDTO): Future[Option[Task]]
+	def deleteCompleted(): Future[Unit]
+	def setStatusForAll(status: TaskStatus): Future[TaskStatus]
 }
 
 @Singleton
-class TaskServiceImpl @Inject()(val taskDAO: TaskDAO) extends TaskService {
-	def getAllTasks(): Future[Seq[Task]] = taskDAO.getAllTasks()
+class TaskServiceImpl @Inject()(taskDAO: TaskDAO) extends TaskService {
+	def getAll(): Future[Seq[Task]] = taskDAO.getAll()
 
-	def createTask(dto: CreateTaskDTO): Future[Option[Task]] = taskDAO.createTask(dto)
+	def create(dto: CreateTaskDTO): Future[Option[Task]] = taskDAO.create(dto)
 
-	def deleteTask(id: Int): Future[Option[Task]] = taskDAO.deleteTaskById(id)
+	def delete(id: Int): Future[Option[Task]] = taskDAO.deleteById(id)
 
-	def updateTask(id: Int, dto: PatchTaskDTO): Future[Option[Task]] = taskDAO.updateTaskById(id, dto)
+	def update(id: Int, dto: PatchTaskDTO): Future[Option[Task]] = taskDAO.updateById(id, dto)
 
-	def deleteCompleted(): Future[Seq[Task]] = taskDAO.deleteCompleted()
+	def deleteCompleted(): Future[Unit] = taskDAO.deleteCompleted()
 
-	def toggleCompleted(completed: Boolean): Future[Boolean] = taskDAO.toggleCompleted(completed)
+	def setStatusForAll(status: TaskStatus): Future[TaskStatus] = taskDAO.setStatusForAll(status)
 
 }
 
