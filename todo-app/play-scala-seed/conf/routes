@@ -6,7 +6,8 @@
 GET       /api/v1/tasks                                 controllers.TaskController.getAll()
 POST      /api/v1/tasks                                 controllers.TaskController.create()
 DELETE    /api/v1/tasks/delete-completed                controllers.TaskController.deleteCompleted()
-PATCH     /api/v1/tasks/:id                             controllers.TaskController.update(id: Int)
+PATCH     /api/v1/tasks/:id/update-name                 controllers.TaskController.updateName(id: Int)
+PATCH     /api/v1/tasks/:id/update-status               controllers.TaskController.updateStatus(id: Int)
 DELETE    /api/v1/tasks/:id                             controllers.TaskController.delete(id: Int)
 
 # TODO: Как тут импортировать TaskStatus

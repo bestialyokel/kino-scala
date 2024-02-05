@@ -1,6 +1,6 @@
 package controllers
 
-import dtos.{CreateTaskDTO, PatchTaskDTO}
+import dtos.{CreateTaskDTO, UpdateTaskNameDTO, UpdateTaskStatusDTO}
 import models.TaskStatus
 import play.api.Logging
 import play.api.libs.json.Json
@@ -39,17 +39,24 @@ class TaskController @Inject()
     logger.debug(s"deleteTask called id=${id}")
 
     taskService.delete(id)
+      .map { _ => NoContent }
+
+  }
+
+  def updateName(id: Int) = Action.async(parse.json[UpdateTaskNameDTO]) { implicit request =>
+    logger.debug(s"updateTask called id=${id}")
+
+    taskService.updateName(id, request.body)
       .map {
         case Some(task) => Ok(Json.toJson(task))
         case None => NotFound
       }
-
   }
 
-  def update(id: Int) = Action.async(parse.json[PatchTaskDTO]) { implicit request =>
+  def updateStatus(id: Int) = Action.async(parse.json[UpdateTaskStatusDTO]) { implicit request =>
     logger.debug(s"updateTask called id=${id}")
 
-    taskService.update(id, request.body)
+    taskService.updateStatus(id, request.body)
       .map {
         case Some(task) => Ok(Json.toJson(task))
         case None => NotFound
@@ -67,6 +74,7 @@ class TaskController @Inject()
     logger.debug(s"toggleCompleted(${status}) called")
 
     // withNameOption матчит имена классов?
+    // хотя должен по идее entryName
     Try(TaskStatus.withName(status)) match {
       case Success(s) =>
         taskService.setStatusForAll(s)

@@ -1,6 +1,6 @@
 package controllers
 
-import dtos.{CreateTaskDTO, PatchTaskDTO}
+import dtos.{CreateTaskDTO, UpdateTaskNameDTO}
 import models.{Task, TaskStatus}
 import org.scalatestplus.mockito.MockitoSugar
 import org.mockito.Mockito._
@@ -206,15 +206,15 @@ class TaskControllerSpec extends PlaySpec with GuiceOneAppPerTest with Injecting
 
 	}
 
-	"TodoListControllerSpec PATCH /tasks/$id" should {
+	"TodoListControllerSpec PATCH /tasks/$id/update-name" should {
 		"update task" in {
 			val mockTaskService = mock[TaskService]
 
-			val dto = PatchTaskDTO(Some("abc"), Some(TaskStatus.Completed))
+			val dto = UpdateTaskNameDTO("abc")
 
 			val task = Task(0, "abc", TaskStatus.Completed, None)
 
-			when(mockTaskService.update(0, dto)).thenReturn(
+			when(mockTaskService.updateName(0, dto)).thenReturn(
 				Future.successful(Some(task))
 			)
 
@@ -223,7 +223,7 @@ class TaskControllerSpec extends PlaySpec with GuiceOneAppPerTest with Injecting
 			val req = FakeRequest(PATCH, "/tasks/0")
         .withHeaders("content-type" -> "application/json")
         .withBody(dto)
-			val tasksF = controller.update(0).apply(req)
+			val tasksF = controller.updateName(0).apply(req)
 
 			status(tasksF) mustBe OK
 			contentType(tasksF) mustBe Some("application/json")
@@ -238,16 +238,16 @@ class TaskControllerSpec extends PlaySpec with GuiceOneAppPerTest with Injecting
 			val req = FakeRequest(PATCH, "/tasks/0")
         .withHeaders("content-type" -> "application/json")
         .withJsonBody(Json.toJson("name_" -> "abc"))
-			val tasksF = controller.update(0).apply(req)
+			val tasksF = controller.updateName(0).apply(req)
 
 			status(tasksF) mustBe BAD_REQUEST
 		}
 
 		"return Not Found for non existing id" in {
 			val mockTaskService = mock[TaskService]
-			val dto = PatchTaskDTO(Some("abc"), Some(TaskStatus.Completed))
+			val dto = UpdateTaskNameDTO("abc")
 
-			when(mockTaskService.update(0, dto)).thenReturn(
+			when(mockTaskService.updateName(0, dto)).thenReturn(
 				Future.successful(None)
 			)
 
@@ -257,7 +257,7 @@ class TaskControllerSpec extends PlaySpec with GuiceOneAppPerTest with Injecting
         .withHeaders("content-type" -> "application/json")
         .withBody(dto)
 
-			val tasksF = controller.update(0).apply(req)
+			val tasksF = controller.updateName(0).apply(req)
 
 			status(tasksF) mustBe NOT_FOUND
 		}

@@ -17,7 +17,7 @@ case object TaskStatus extends Enum[TaskStatus] with PlayJsonEnum[TaskStatus] {
   case object Incompleted extends TaskStatus("incompleted")
 }
 
-case class Task(id: Int, name: String, status: TaskStatus, deleted: Option[Timestamp])
+case class Task(id: Int, name: String, status: TaskStatus, deletedO: Option[Timestamp])
 
 trait TaskJson {
   val formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME.withZone(ZoneId.from(ZoneOffset.UTC))

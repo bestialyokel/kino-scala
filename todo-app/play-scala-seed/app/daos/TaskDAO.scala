@@ -1,22 +1,23 @@
 package daos
 
 import com.google.inject.Inject
-import dtos.{CreateTaskDTO, PatchTaskDTO}
+import dtos.{CreateTaskDTO, UpdateTaskNameDTO, UpdateTaskStatusDTO}
 import enumeratum.SlickEnumSupport
 import models.{Task, TaskStatus}
 import play.api.db.slick.DatabaseConfigProvider
 import slick.jdbc.JdbcProfile
 
 import java.sql.Timestamp
-import java.time.{OffsetDateTime}
+import java.time.OffsetDateTime
 import javax.inject.Singleton
 import scala.concurrent.{ExecutionContext, Future}
 
 trait TaskDAO {
 	def getAll(): Future[Seq[Task]]
 	def create(dto: CreateTaskDTO): Future[Option[Task]]
-	def updateById(id: Int, dto: PatchTaskDTO): Future[Option[Task]]
-	def deleteById(id: Int): Future[Option[Task]]
+  def updateNameById(id: Int, dto: UpdateTaskNameDTO): Future[Option[Task]]
+  def updateStatusById(id: Int, dto: UpdateTaskStatusDTO): Future[Option[Task]]
+  def deleteById(id: Int): Future[Unit]
 	def deleteCompleted(): Future[Unit]
 	def setStatusForAll(status: TaskStatus): Future[TaskStatus]
 }
@@ -50,8 +51,8 @@ class TaskDAODatabaseImpl @Inject()
 	private val Tasks = TableQuery[TasksTable]
 
 	def create(dto: CreateTaskDTO): Future[Option[Task]] = db.run {
-    (Tasks.returning(Tasks) += getTask(0, dto))
-		.map(Some(_))
+    val q = Tasks.returning(Tasks) += getTask(0, dto)
+    q.map(Some(_))
 	}
 
 	def getAll(): Future[Seq[Task]] = db.run {
@@ -72,45 +73,46 @@ class TaskDAODatabaseImpl @Inject()
 	}
 
 	// TODO: как-то прикрутить returning
-	def updateById(id: Int, dto: PatchTaskDTO): Future[Option[Task]] = db.run {
+	def updateNameById(id: Int, dto: UpdateTaskNameDTO): Future[Option[Task]] = db.run {
 		val q = Tasks.filter(_.id === id)
 
 		q.result
 		  .headOption
 		  .flatMap {
 			  case Some(task) =>
-				  q.update(patchTask(task, dto))
+				  q.map(_.name).update(dto.name)
 					.andThen(q.result.headOption)
 			  case None => DBIO.successful(None)
 		  }
 		  .transactionally
 	}
 
+  def updateStatusById(id: Int, dto: UpdateTaskStatusDTO): Future[Option[Task]] = db.run {
+    val q = Tasks.filter(_.id === id)
+
+    q.result
+      .headOption
+      .flatMap {
+        case Some(task) =>
+          q.map(_.status).update(dto.taskStatus)
+            .andThen(q.result.headOption)
+        case None => DBIO.successful(None)
+      }
+      .transactionally
+  }
+
 	// TODO: как-то прикрутить returning
-	def deleteById(id: Int): Future[Option[Task]] = db.run {
-		val q = Tasks.filter(_.id === id)
-    val now = Some(getNowTimestamp())
-		q.map(_.deleted).update(now).flatMap { _ =>
-			q.result.headOption
-		}.transactionally
+	def deleteById(id: Int): Future[Unit] = db.run {
+    Tasks.filter(_.id === id)
+      .map(_.deleted).update(Some(getNowTimestamp()))
+      .map(_ => ())
 	}
 
   protected def getNowTimestamp(): Timestamp = {
     Timestamp.from(OffsetDateTime.now().toInstant)
   }
 
-  protected def patchTask(task: Task, dto: PatchTaskDTO): Task = {
-    task.copy(
-      name = dto.nameO.getOrElse(task.name),
-      status = dto.completedO.getOrElse(task.status),
-      deleted = dto.deletedO.flatMap {
-        case true => Some(getNowTimestamp())
-        case _ => None
-      }
-    )
-  }
-
-  protected def getTask(id: Int, dto: CreateTaskDTO) = Task(id, dto.name, TaskStatus.Incompleted, Some(getNowTimestamp()))
+  protected def getTask(id: Int, dto: CreateTaskDTO) = Task(id, dto.name, TaskStatus.Incompleted, None)
 }
 
 
