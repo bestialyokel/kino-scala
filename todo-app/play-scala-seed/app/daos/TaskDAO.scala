@@ -83,18 +83,16 @@ class TaskDAODatabaseImpl @Inject() (val dbConfigProvider: DatabaseConfigProvide
       .flatMap { _ =>
         q.result.headOption
       }
-      .transactionally
   }
 
   def updateStatusById(id: Int, dto: UpdateTaskStatusDTO): Future[Option[Task]] = db.run {
     val q = Tasks.filter(_.id === id)
 
     q.map(_.status)
-      .update(dto.taskStatus)
+      .update(dto.status)
       .flatMap { _ =>
         q.result.headOption
       }
-      .transactionally
   }
 
   // TODO: как-то прикрутить returning
