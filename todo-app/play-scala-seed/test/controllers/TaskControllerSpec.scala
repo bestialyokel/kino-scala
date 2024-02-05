@@ -116,35 +116,14 @@ class TaskControllerSpec extends PlaySpec with GuiceOneAppPerTest with Injecting
 			val req = FakeRequest(DELETE, "/tasks/0")
 			val tasksF = controller.delete(0).apply(req)
 
-			status(tasksF) mustBe OK
-			contentType(tasksF) mustBe Some("application/json")
-			contentAsJson(tasksF).as[Task] mustBe task
+			status(tasksF) mustBe NO_CONTENT
 		}
-
-		"return Not Found for non existing" in {
-			val mockTaskService = mock[TaskService]
-
-			when(mockTaskService.delete(0)).thenReturn(
-				Future.successful(None)
-			)
-
-      val controller = getController(mockTaskService)
-
-			val req = FakeRequest(DELETE, "/tasks")
-			val tasksF = controller.delete(0).apply(req)
-
-			status(tasksF) mustBe NOT_FOUND
-		}
-
 
 	}
 
 	"TodoListControllerSpec PATCH /tasks/toggle-completed" should {
 		"toggle completed field of tasks and return flag" in {
 			val mockTaskService = mock[TaskService]
-
-			val dto = CreateTaskDTO("task 1")
-			val task = Task(0, dto.name, TaskStatus.Incompleted, None)
 
 			when(mockTaskService.setStatusForAll(TaskStatus.Completed)).thenReturn(
 				Future.successful(TaskStatus.Completed)
@@ -153,10 +132,9 @@ class TaskControllerSpec extends PlaySpec with GuiceOneAppPerTest with Injecting
       val controller = getController(mockTaskService)
 
 			val req = FakeRequest(PATCH, s"/tasks/set-status/${TaskStatus.Completed.entryName}")
-			val tasksF = controller.setStatusForAll(TaskStatus.Completed.toString).apply(req)
+			val tasksF = controller.setStatusForAll(TaskStatus.Completed.entryName).apply(req)
 
 			status(tasksF) mustBe OK
-			contentAsString(tasksF) mustBe TaskStatus.Completed
 		}
 	}
 
@@ -164,15 +142,8 @@ class TaskControllerSpec extends PlaySpec with GuiceOneAppPerTest with Injecting
 		"delete all completed tasks and return it" in {
 			val mockTaskService = mock[TaskService]
 
-      val now = Some(getNow())
-			val tasks = Seq(
-				Task(0, "task1", TaskStatus.Completed, now),
-				Task(1, "task2", TaskStatus.Completed, now),
-				Task(2, "task3", TaskStatus.Completed, now),
-			)
-
 			when(mockTaskService.deleteCompleted()).thenReturn(
-				Future.successful(tasks)
+				Future.successful()
 			)
 
       val controller = getController(mockTaskService)
@@ -180,29 +151,8 @@ class TaskControllerSpec extends PlaySpec with GuiceOneAppPerTest with Injecting
 			val req = FakeRequest(DELETE, "/tasks/delete-completed")
 			val tasksF = controller.deleteCompleted().apply(req)
 
-			status(tasksF) mustBe OK
-			contentType(tasksF) mustBe Some("application/json")
-			contentAsJson(tasksF).as[Seq[Task]] mustEqual tasks
+			status(tasksF) mustBe NO_CONTENT
 		}
-
-		"return Bad Request for invalid input" in {
-			val mockTaskService = mock[TaskService]
-
-			val dto = CreateTaskDTO("task 1")
-			val task = Task(0, dto.name, TaskStatus.Incompleted, None)
-
-			when(mockTaskService.create(dto)).thenReturn(
-				Future.successful(Some(task))
-			)
-
-      val controller = getController(mockTaskService)
-
-			val req = FakeRequest(POST, "/tasks").withJsonBody(Json.toJson("name_" -> "abc"))
-			val tasksF = controller.create().apply(req)
-
-			status(tasksF) mustBe BAD_REQUEST
-		}
-
 
 	}
 

@@ -14,7 +14,7 @@ trait TaskService {
   def updateName(id: Int, dto: UpdateTaskNameDTO): Future[Option[Task]]
   def updateStatus(id: Int, dto: UpdateTaskStatusDTO): Future[Option[Task]]
 	def deleteCompleted(): Future[Unit]
-	def setStatusForAll(status: TaskStatus): Future[TaskStatus]
+	def setStatusForAll(status: TaskStatus): Future[Unit]
 }
 
 @Singleton
@@ -31,7 +31,7 @@ class TaskServiceImpl @Inject()(taskDAO: TaskDAO) extends TaskService {
 
 	def deleteCompleted(): Future[Unit] = taskDAO.deleteCompleted()
 
-	def setStatusForAll(status: TaskStatus): Future[TaskStatus] = taskDAO.setStatusForAll(status)
+	def setStatusForAll(status: TaskStatus): Future[Unit] = taskDAO.setStatusForAll(status)
 
 }
 

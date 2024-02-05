@@ -19,7 +19,7 @@ trait TaskDAO {
   def updateStatusById(id: Int, dto: UpdateTaskStatusDTO): Future[Option[Task]]
   def deleteById(id: Int): Future[Unit]
 	def deleteCompleted(): Future[Unit]
-	def setStatusForAll(status: TaskStatus): Future[TaskStatus]
+	def setStatusForAll(status: TaskStatus): Future[Unit]
 }
 
 @Singleton
@@ -59,8 +59,8 @@ class TaskDAODatabaseImpl @Inject()
     Tasks.filter(_.deleted.isEmpty).result
 	}
 
-	def setStatusForAll(status: TaskStatus): Future[TaskStatus] = db.run {
-    Tasks.map(_.status).update(status).map(_ => status)
+	def setStatusForAll(status: TaskStatus): Future[Unit] = db.run {
+    Tasks.map(_.status).update(status).map(_ => ())
 	}
 
 	// TODO: как-то прикрутить returning

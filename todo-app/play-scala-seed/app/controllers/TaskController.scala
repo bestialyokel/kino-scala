@@ -67,7 +67,7 @@ class TaskController @Inject()
     logger.debug(s"deleteCompleted called")
 
     taskService.deleteCompleted()
-      .map { _ => Ok }
+      .map { _ => NoContent }
   }
 
   def setStatusForAll(status: String) = Action.async {
@@ -78,7 +78,7 @@ class TaskController @Inject()
     Try(TaskStatus.withName(status)) match {
       case Success(s) =>
         taskService.setStatusForAll(s)
-          .map { task => Ok(Json.toJson(task)) }
+          .map { _ => Ok }
       case _ => Future.successful(BadRequest)
     }
   }
