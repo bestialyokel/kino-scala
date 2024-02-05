@@ -1,6 +1,5 @@
 package daos
 
-import java.sql.Timestamp
 import java.time.OffsetDateTime
 
 import javax.inject.Singleton
@@ -45,7 +44,7 @@ class TaskDAODatabaseImpl @Inject() (val dbConfigProvider: DatabaseConfigProvide
     def status = column[TaskStatus]("status")
     // OffsetDateTime and ZonedDateTime not currently supportable natively by the backend
     // org.postgresql
-    def deleted = column[Option[Timestamp]]("deleted_at")
+    def deleted = column[Option[OffsetDateTime]]("deleted_at")
 
     def * = (id, name, status, deleted).mapTo[Task]
   }
@@ -103,7 +102,7 @@ class TaskDAODatabaseImpl @Inject() (val dbConfigProvider: DatabaseConfigProvide
     Tasks.filter(_.id === id).map(_.deleted).update(Some(getNowTimestamp())).map(_ => ())
   }
 
-  protected def getNowTimestamp(): Timestamp = Timestamp.from(OffsetDateTime.now().toInstant)
+  protected def getNowTimestamp(): OffsetDateTime = OffsetDateTime.now()
 
   protected def getTask(id: Int, dto: CreateTaskDTO) =
     Task(id, dto.name, TaskStatus.Incompleted, None)

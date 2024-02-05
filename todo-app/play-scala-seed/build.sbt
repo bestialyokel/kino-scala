@@ -15,6 +15,7 @@ libraryDependencies ++=
   Seq(
     "org.playframework"      %% "play-json"             % "3.0.0",
     "org.playframework"      %% "play-slick"            % "6.0.0",
+    "com.github.tminglei" %% "slick-pg" % "0.21.1",
     "org.playframework"      %% "play-slick-evolutions" % "6.0.0",
     "com.beachape"           %% "enumeratum"            % "1.7.2",
     "com.beachape"           %% "enumeratum-slick"      % "1.7.4",

@@ -1,9 +1,8 @@
 package models
 
 import java.sql.Timestamp
-import java.time.{LocalDateTime, ZoneId, ZoneOffset}
+import java.time.{LocalDateTime, OffsetDateTime, ZoneId, ZoneOffset}
 import java.time.format.DateTimeFormatter
-
 import enumeratum._
 import play.api.libs.json.{Json, Reads, Writes}
 
@@ -15,7 +14,7 @@ case object TaskStatus extends Enum[TaskStatus] with PlayJsonEnum[TaskStatus] {
   case object Incompleted extends TaskStatus("incompleted")
 }
 
-case class Task(id: Int, name: String, status: TaskStatus, deletedO: Option[Timestamp])
+case class Task(id: Int, name: String, status: TaskStatus, deletedO: Option[OffsetDateTime])
 
 trait TaskJson {
   val formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME.withZone(ZoneId.from(ZoneOffset.UTC))
