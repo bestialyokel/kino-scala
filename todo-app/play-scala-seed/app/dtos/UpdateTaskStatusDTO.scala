@@ -3,7 +3,6 @@ package dtos
 import models.TaskStatus
 import play.api.libs.json.{Json, Reads, Writes}
 
-
 case class UpdateTaskStatusDTO(taskStatus: TaskStatus)
 
 trait UpdateTaskStatusDTOJson {
