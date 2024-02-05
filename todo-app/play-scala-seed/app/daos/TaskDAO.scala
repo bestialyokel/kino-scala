@@ -39,7 +39,7 @@ class TaskDAODatabaseImpl @Inject() (val dbConfigProvider: DatabaseConfigProvide
     mappedColumnTypeForEnum(TaskStatus)
 
   private class TasksTable(tag: Tag) extends Table[Task](tag, "tasks") {
-    def id = column[Int]("task_id", O.PrimaryKey, O.AutoInc)
+    def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
     def name = column[String]("name")
     def status = column[TaskStatus]("status")
     // OffsetDateTime and ZonedDateTime not currently supportable natively by the backend
