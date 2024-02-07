@@ -26,21 +26,15 @@ class TaskServiceImpl @Inject() (taskDAO: TaskDAO)(implicit
 
   def delete(id: Int): Future[Option[Task]] = taskDAO
     .deleteById(id)
-    .flatMap { _ =>
-      taskDAO.getOneById(id)
-    }
+    .flatMap(_ => taskDAO.getOneById(id))
 
   def setName(id: Int, dto: UpdateTaskNameDTO): Future[Option[Task]] = taskDAO
     .updateNameById(id, dto)
-    .flatMap { _ =>
-      taskDAO.getOneById(id)
-    }
+    .flatMap(_ => taskDAO.getOneById(id))
 
   def setStatus(id: Int, dto: UpdateTaskStatusDTO): Future[Option[Task]] = taskDAO
     .updateStatusById(id, dto)
-    .flatMap { _ =>
-      taskDAO.getOneById(id)
-    }
+    .flatMap(_ => taskDAO.getOneById(id))
 
   def deleteCompleted(): Future[Unit] = taskDAO.deleteCompleted()
 
