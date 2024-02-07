@@ -1,6 +1,6 @@
 package dtos
 
-import models.TaskStatus
+import enums.TaskStatus
 import play.api.libs.json.{Json, Reads, Writes}
 
 case class UpdateTaskStatusDTO(status: TaskStatus)

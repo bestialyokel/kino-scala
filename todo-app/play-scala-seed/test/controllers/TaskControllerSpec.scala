@@ -6,7 +6,8 @@ import java.time.OffsetDateTime
 import scala.concurrent.{ExecutionContext, Future}
 
 import dtos.{CreateTaskDTO, UpdateTaskNameDTO}
-import models.{Task, TaskStatus}
+import models.Task
+import enums.TaskStatus
 import org.mockito.Mockito._
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play._

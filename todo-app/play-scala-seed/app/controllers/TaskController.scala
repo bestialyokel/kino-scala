@@ -4,11 +4,11 @@ import javax.inject.{Inject, Singleton}
 
 import scala.concurrent.ExecutionContext
 import dtos.{CreateTaskDTO, UpdateTaskNameDTO, UpdateTaskStatusDTO}
-import models.TaskStatus
 import play.api.Logging
 import play.api.libs.json.Json
 import play.api.mvc.InjectedController
 import services.TaskService
+import enums.TaskStatus
 
 @Singleton
 class TaskController @Inject() (val taskService: TaskService)(implicit

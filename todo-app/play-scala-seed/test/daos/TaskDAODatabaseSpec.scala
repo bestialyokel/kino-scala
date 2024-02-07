@@ -1,6 +1,7 @@
 package daos
 
-import models.{Task, TaskStatus}
+import models.Task
+import enums.TaskStatus
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneAppPerTest

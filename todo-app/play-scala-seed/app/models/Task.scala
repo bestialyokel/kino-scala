@@ -1,17 +1,9 @@
 package models
 
-import enumeratum.EnumEntry.Snakecase
+import enums.TaskStatus
+
 import java.time.OffsetDateTime
-import enumeratum._
 import play.api.libs.json.{Json, Reads, Writes}
-
-sealed trait TaskStatus extends EnumEntry with Snakecase
-
-case object TaskStatus extends Enum[TaskStatus] with PlayEnum[TaskStatus] {
-  val values = findValues
-  case object Completed extends TaskStatus
-  case object Incompleted extends TaskStatus
-}
 
 case class Task(id: Int, name: String, status: TaskStatus, deletedO: Option[OffsetDateTime])
 

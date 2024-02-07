@@ -4,7 +4,8 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 import daos.TaskDAO
 import dtos.{CreateTaskDTO, UpdateTaskNameDTO, UpdateTaskStatusDTO}
-import models.{Task, TaskStatus}
+import models.Task
+import enums.TaskStatus
 
 trait TaskService {
   def all(): Future[Seq[Task]]
@@ -38,7 +39,8 @@ class TaskServiceImpl @Inject() (taskDAO: TaskDAO)(implicit
 
   def deleteCompleted(): Future[Unit] = taskDAO.deleteCompleted()
 
-  def setStatusForAll(status: TaskStatus): Future[TaskStatus] =
-    taskDAO.setStatusForAll(status).map(_ => status)
+  def setStatusForAll(status: TaskStatus): Future[TaskStatus] = taskDAO
+    .setStatusForAll(status)
+    .map(_ => status)
 
 }

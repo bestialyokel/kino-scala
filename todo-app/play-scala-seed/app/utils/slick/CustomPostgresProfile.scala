@@ -1,8 +1,9 @@
 package utils.slick
 
+import enums.TaskStatus
+
 import com.github.tminglei.slickpg._
 import enumeratum.SlickEnumSupport
-import models.TaskStatus
 import slick.ast.BaseTypedType
 import slick.jdbc
 

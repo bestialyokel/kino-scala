@@ -36,8 +36,7 @@ Test / testOptions += Tests.Argument("-Dconfig.resource=", "application-test.con
 
 import play.sbt.routes.RoutesKeys
 RoutesKeys.routesImport := Seq.empty
-RoutesKeys.routesImport += "models.TaskStatus"
-
+RoutesKeys.routesImport += "enums.TaskStatus"
 // Adds additional packages into Twirl
 //TwirlKeys.templateImports += "com.example.controllers._"
 
