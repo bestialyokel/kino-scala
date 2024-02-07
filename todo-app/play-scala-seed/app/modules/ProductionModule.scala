@@ -1,4 +1,4 @@
-package util
+package modules
 
 import com.google.inject.AbstractModule
 import com.typesafe.config.ConfigFactory

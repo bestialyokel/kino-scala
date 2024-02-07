@@ -9,4 +9,4 @@ trait UpdateTaskNameDTOJson {
   implicit val reads: Reads[UpdateTaskNameDTO] = Json.reads
 }
 
-object UpdateTaskNameDTO extends UpdateTaskNameDTOJson {}
+object UpdateTaskNameDTO extends UpdateTaskNameDTOJson

@@ -7,7 +7,7 @@ CREATE TYPE task_status AS ENUM ('completed', 'incompleted');
 create table tasks (
     id serial primary key,
     name varchar(64),
-    deleted_at timestamp,
+    deleted timestamp,
     status task_status
 );
 

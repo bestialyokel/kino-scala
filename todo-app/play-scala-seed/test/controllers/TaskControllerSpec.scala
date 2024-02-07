@@ -35,11 +35,11 @@ class TaskControllerSpec extends PlaySpec with GuiceOneAppPerTest with Injecting
         Task(1, "task 1", TaskStatus.Completed, None),
         Task(2, "task 1", TaskStatus.Completed, None)
       )
-      when(mockTaskService.getAll()).thenReturn(Future.successful(tasks))
+      when(mockTaskService.all()).thenReturn(Future.successful(tasks))
 
       val controller = getController(mockTaskService)
 
-      val tasksF = controller.getAll().apply(FakeRequest(GET, "/tasks"))
+      val tasksF = controller.all().apply(FakeRequest(GET, "/tasks"))
 
       status(tasksF) mustBe OK
       contentType(tasksF) mustBe Some("application/json")
@@ -94,7 +94,8 @@ class TaskControllerSpec extends PlaySpec with GuiceOneAppPerTest with Injecting
     "return OK if sucessfully deleted" in {
       val mockTaskService = mock[TaskService]
 
-      when(mockTaskService.delete(0)).thenReturn(Future.successful((): Unit))
+      val task = Task(1, "", TaskStatus.Completed, None)
+      when(mockTaskService.delete(0)).thenReturn(Future.successful(Some(task)))
 
       val controller = getController(mockTaskService)
 
@@ -111,12 +112,12 @@ class TaskControllerSpec extends PlaySpec with GuiceOneAppPerTest with Injecting
       val mockTaskService = mock[TaskService]
 
       when(mockTaskService.setStatusForAll(TaskStatus.Completed))
-        .thenReturn(Future.successful((): Unit))
+        .thenReturn(Future.successful(TaskStatus.Completed))
 
       val controller = getController(mockTaskService)
 
       val req = FakeRequest(PATCH, s"/tasks/set-status/${TaskStatus.Completed.entryName}")
-      val tasksF = controller.setStatusForAll(TaskStatus.Completed.entryName).apply(req)
+      val tasksF = controller.setStatusForAll(TaskStatus.Completed).apply(req)
 
       status(tasksF) mustBe OK
     }
@@ -146,14 +147,14 @@ class TaskControllerSpec extends PlaySpec with GuiceOneAppPerTest with Injecting
 
       val task = Task(0, "abc", TaskStatus.Completed, None)
 
-      when(mockTaskService.updateName(0, dto)).thenReturn(Future.successful(Some(task)))
+      when(mockTaskService.setName(0, dto)).thenReturn(Future.successful(Some(task)))
 
       val controller = getController(mockTaskService)
 
       val req = FakeRequest(PATCH, "/tasks/0")
         .withHeaders("content-type" -> "application/json")
         .withBody(dto)
-      val tasksF = controller.updateName(0).apply(req)
+      val tasksF = controller.setName(0).apply(req)
 
       status(tasksF) mustBe OK
       contentType(tasksF) mustBe Some("application/json")
@@ -168,7 +169,7 @@ class TaskControllerSpec extends PlaySpec with GuiceOneAppPerTest with Injecting
       val req = FakeRequest(PATCH, "/tasks/0")
         .withHeaders("content-type" -> "application/json")
         .withJsonBody(Json.toJson("name_" -> "abc"))
-      val tasksF = controller.updateName(0).apply(req)
+      val tasksF = controller.setName(0).apply(req)
 
       status(tasksF) mustBe BAD_REQUEST
     }
@@ -177,7 +178,7 @@ class TaskControllerSpec extends PlaySpec with GuiceOneAppPerTest with Injecting
       val mockTaskService = mock[TaskService]
       val dto = UpdateTaskNameDTO("abc")
 
-      when(mockTaskService.updateName(0, dto)).thenReturn(Future.successful(None))
+      when(mockTaskService.setName(0, dto)).thenReturn(Future.successful(None))
 
       val controller = getController(mockTaskService)
 
@@ -185,7 +186,7 @@ class TaskControllerSpec extends PlaySpec with GuiceOneAppPerTest with Injecting
         .withHeaders("content-type" -> "application/json")
         .withBody(dto)
 
-      val tasksF = controller.updateName(0).apply(req)
+      val tasksF = controller.setName(0).apply(req)
 
       status(tasksF) mustBe NOT_FOUND
     }

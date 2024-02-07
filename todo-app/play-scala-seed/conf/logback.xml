@@ -72,7 +72,7 @@
     <logger name="slick.memory.HeapBackend"                 level="${log_heap:-inherited}" />
     <logger name="slick.memory.QueryInterpreter"            level="${log_interpreter:-inherited}" />
     <logger name="slick.relational.ResultConverterCompiler" level="${log_resultConverter:-inherited}" />
-    <logger name="slick.util.AsyncExecutor"                 level="${log_asyncExecutor:-inherited}" />
+    <logger name="slick.utils.AsyncExecutor" level="${log_asyncExecutor:-inherited}" />
 
     <!-- TODO SET WARN -->
     <root level="WARN">

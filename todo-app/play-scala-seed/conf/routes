@@ -3,12 +3,10 @@
 # https://www.playframework.com/documentation/latest/ScalaRouting
 # ~~~~
 
-GET       /api/v1/tasks                                 controllers.TaskController.getAll()
+GET       /api/v1/tasks                                 controllers.TaskController.all()
 POST      /api/v1/tasks                                 controllers.TaskController.create()
-DELETE    /api/v1/tasks/delete-completed                controllers.TaskController.deleteCompleted()
-PATCH     /api/v1/tasks/:id/update-name                 controllers.TaskController.updateName(id: Int)
-PATCH     /api/v1/tasks/:id/update-status               controllers.TaskController.updateStatus(id: Int)
+PATCH     /api/v1/tasks/:id/name                        controllers.TaskController.setName(id: Int)
+PATCH     /api/v1/tasks/:id/status                      controllers.TaskController.setStatus(id: Int)
+PATCH     /api/v1/tasks/status/:status/all              controllers.TaskController.setStatusForAll(status: TaskStatus)
 DELETE    /api/v1/tasks/:id                             controllers.TaskController.delete(id: Int)
-
-# TODO: Как тут импортировать TaskStatus
-PATCH     /api/v1/tasks/set-status/:status               controllers.TaskController.setStatusForAll(status: String)
+DELETE    /api/v1/tasks/delete/completed                controllers.TaskController.deleteCompleted()
