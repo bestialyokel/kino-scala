@@ -7,10 +7,6 @@ import { tasksApi } from "./rtk";
 export type TaskListState = Readonly<{
     tasks: Task[],
     filter: TasksFilter,
-
-    loading: boolean,
-    currentRequestId: number,
-    errors: string[]
 }>;
 
 const initialState: TaskListState = {
@@ -18,10 +14,6 @@ const initialState: TaskListState = {
     filter: {
         status: TasksStatusFilter.All
     },
-
-    loading: false,
-    currentRequestId: -1,
-    errors: []
 };
 
 const tasksReducer = createReducer(initialState, (builder) => {

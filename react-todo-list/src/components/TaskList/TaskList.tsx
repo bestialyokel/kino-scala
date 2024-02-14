@@ -83,14 +83,14 @@ function TaskList(props: Props) {
         setTasks(tasks);
     }, [data]);
 
-    const headerVisible = [createFlags, setStatusAllFlags].some(x => x.isLoading === true);
-    const listVisible = [deleteFlags, 
+    const headerLoading = [createFlags, setStatusAllFlags].some(x => x.isLoading === true);
+    const listLoading = [deleteFlags, 
         setNameFlags,
         setStatusFlags, 
         setStatusAllFlags].some(x => x.isLoading === true);
-    const footerVisible = [deleteCompletedFlags, deleteFlags].some(x => x.isLoading === true);
+    const footerLoading = [deleteCompletedFlags, deleteFlags].some(x => x.isLoading === true);
 
-    const isLoading = headerVisible || listVisible || footerVisible;
+    const isLoading = headerLoading || listLoading || footerLoading;
 
     if (isLoading) {
         return (
