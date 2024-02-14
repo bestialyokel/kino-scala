@@ -1,0 +1,12 @@
+.header {
+    display: flex;
+}
+
+.header .task-name-input {
+    flex: 1;
+}
+
+.header .task-name-input input {
+    width: 100%;
+    box-sizing: border-box;
+}

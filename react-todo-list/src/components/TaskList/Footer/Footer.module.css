@@ -1,0 +1,12 @@
+
+.footer-wrapper {}
+
+.footer {
+    display: flex;
+    justify-content: space-between;
+}
+
+.filter {
+    display: flex;
+    gap: 5px;
+}

@@ -1,0 +1,35 @@
+
+.task {
+    display: flex;
+    align-items: center;
+}
+
+.task > input,
+.task > span {
+    flex: 1;
+}
+
+.delete-btn {
+    display: inline-flex;
+    align-items: center;
+
+    padding: 0;
+
+    background: transparent;
+    border: 0;
+}
+
+.delete-btn > * {
+    visibility: hidden;
+}
+
+.delete-btn:hover > *{
+    visibility: visible;
+    /*
+    TODO USE less/scss + variables + themes
+    #b83f45
+    */
+    filter: invert(30%) sepia(39%) 
+        saturate(4294%) hue-rotate(338deg) 
+        brightness(80%) contrast(75%);
+}
